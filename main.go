@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-chi/chi"
+	"github.com/joho/godotenv"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -28,12 +31,16 @@ func getIP() string {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	exposeOnAddress := os.Getenv("EXPOSE_ON_ADDRESS")
+	exposeOnPort := os.Getenv("EXPOSE_ON_PORT")
 	r := chi.NewRouter()
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome - local ip: "+getIP()+" - request number: "+strconv.FormatInt(cont, 10)))
+		w.Write([]byte("welcome - local ip: " + getIP() + " - request number: " + strconv.FormatInt(cont, 10)))
 		cont++
 	})
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(fmt.Sprintf("%s:%s", exposeOnAddress, exposeOnPort), r)
 }
-
-
